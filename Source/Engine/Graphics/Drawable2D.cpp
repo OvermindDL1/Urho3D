@@ -168,23 +168,17 @@ void Drawable2D::SetBlendMode(BlendMode mode)
     }
 }
 
+void Drawable2D::SetZValue(float zValue)
+{
+    zValue_ = zValue;
+
+    MarkVerticesDirty();
+    MarkGeometryDirty();
+}
+
 Material* Drawable2D::GetMaterial() const
 {
     return material_;
-}
-
-void Drawable2D::OnWorldBoundingBoxUpdate()
-{
-    if (verticesDirty_)
-    {
-        UpdateVertices();
-        
-        boundingBox_.Clear();
-        for (unsigned i = 0; i < vertices_.Size(); ++i)
-            boundingBox_.Merge(vertices_[i].position_);
-    }
-
-    worldBoundingBox_ = boundingBox_.Transformed(node_->GetWorldTransform());
 }
 
 void Drawable2D::SetSpriteAttr(ResourceRef value)
@@ -237,6 +231,20 @@ void Drawable2D::SetMaterialAttr(ResourceRef value)
 ResourceRef Drawable2D::GetMaterialAttr() const
 {
     return GetResourceRef(material_, Material::GetTypeStatic());
+}
+
+void Drawable2D::OnWorldBoundingBoxUpdate()
+{
+    if (verticesDirty_)
+    {
+        UpdateVertices();
+
+        boundingBox_.Clear();
+        for (unsigned i = 0; i < vertices_.Size(); ++i)
+            boundingBox_.Merge(vertices_[i].position_);
+    }
+
+    worldBoundingBox_ = boundingBox_.Transformed(node_->GetWorldTransform());
 }
 
 void Drawable2D::UpdateMaterial(bool forceUpdate)
