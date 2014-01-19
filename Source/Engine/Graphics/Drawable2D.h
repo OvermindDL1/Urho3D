@@ -70,7 +70,7 @@ public:
     /// Return Z value.
     float GetZValue() const { return zValue_; }
 
-    /// Return vertices.
+    /// Return all vertices.
     const Vector<Vertex2D>& GetVertices() const { return vertices_; }
 
     /// Set sprite attribute.

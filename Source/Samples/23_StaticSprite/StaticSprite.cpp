@@ -39,6 +39,11 @@
 
 #include "DebugNew.h"
 
+// Number of sprites to draw
+static const unsigned NUM_SPRITES = 200;
+static const ShortStringHash VAR_MOVESPEED("MoveSpeed");
+static const ShortStringHash VAR_ROTATESPEED("RotateSpeed");
+
 DEFINE_APPLICATION_MAIN(StaticSprite)
 
 StaticSprite::StaticSprite(Context* context) :
@@ -79,18 +84,21 @@ void StaticSprite::CreateScene()
     if (!sprite)
         return;
 
-    const unsigned NUM_OBJECTS = 1000;
-    for (unsigned i = 0; i < NUM_OBJECTS; ++i)
+    for (unsigned i = 0; i < NUM_SPRITES; ++i)
     {
-        Node* spriteNode = scene_->CreateChild("StaticSprite");
+        SharedPtr<Node> spriteNode(scene_->CreateChild("StaticSprite"));
         NodeUtils::SetPosition(spriteNode, Vector2(Random(width) - width * 0.5f, Random(height) - height * 0.5f));
         spriteNode->SetScale(0.1f + Random(0.1f));
         NodeUtils::SetRotation(spriteNode, Random(360.0f));
 
         StaticSprite2D* staticSprite = spriteNode->CreateComponent<StaticSprite2D>();
         staticSprite->SetColor(Color(Random(1.0f), Random(1.0f), Random(1.0f), 1.0f));
-        staticSprite->SetBlendMode(BLEND_ADDALPHA);
+        staticSprite->SetBlendMode(BLEND_ADD);
         staticSprite->SetSprite(sprite);
+
+        spriteNode->SetVar(VAR_MOVESPEED, Vector2(Random(400.0f) - 200.0f, Random(400.0f) - 200.0f));
+        spriteNode->SetVar(VAR_ROTATESPEED, Random(360.0f) - 180.0f);
+        spriteNodes_.Push(spriteNode);
     }
 
     // Create camera node
@@ -103,7 +111,7 @@ void StaticSprite::CreateScene()
     camera->SetOrthoSize(Vector2(width, height));
 
     Renderer* renderer = GetSubsystem<Renderer>();
-    // renderer->GetDefaultZone()->SetFogColor(Color(0.0f, 0.25f, 0.0f, 1.0f));
+    renderer->GetDefaultZone()->SetFogColor(Color(0.0f, 0.25f, 0.0f, 1.0f));
 }
 
 void StaticSprite::CreateInstructions()
@@ -179,4 +187,35 @@ void StaticSprite::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     // Move the camera, scale movement with time step
     MoveCamera(timeStep);
+
+    Graphics* graphics = GetSubsystem<Graphics>();
+    float halfWidth = (float)graphics->GetWidth() * 0.5f;
+    float halfHeight = (float)graphics->GetHeight() * 0.5f;
+
+    for (unsigned i = 0; i < spriteNodes_.Size(); ++i)
+    {
+        SharedPtr<Node> node = spriteNodes_[i];
+
+        Vector2 position = NodeUtils::GetPosition(node);
+
+        Vector2 moveSpeed = node->GetVar(VAR_MOVESPEED).GetVector2();        
+        Vector2 newPosition = position + moveSpeed * timeStep;
+        if (newPosition.x_ < -halfWidth || newPosition.x_ > halfWidth)
+        {
+            newPosition.x_ = position.x_;
+            moveSpeed.x_ = -moveSpeed.x_;
+            node->SetVar(VAR_MOVESPEED, moveSpeed);
+        }
+        if (newPosition.y_ < -halfHeight || newPosition.y_ > halfHeight)
+        {
+            newPosition.y_ = position.y_;
+            moveSpeed.y_ = -moveSpeed.y_;
+            node->SetVar(VAR_MOVESPEED, moveSpeed);
+        }
+        
+        NodeUtils::SetPosition(node, newPosition);
+
+        float rotateSpeed = node->GetVar(VAR_ROTATESPEED).GetFloat();
+        NodeUtils::Rotate(node, rotateSpeed * timeStep);
+    }
 }
