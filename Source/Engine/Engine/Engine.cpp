@@ -43,6 +43,7 @@
 #include "Scene.h"
 #include "SceneEvents.h"
 #include "UI.h"
+#include "Urho2D.h"
 #include "WorkQueue.h"
 #include "XMLFile.h"
 
@@ -126,6 +127,9 @@ Engine::Engine(Context* context) :
     RegisterSceneLibrary(context_);
     RegisterPhysicsLibrary(context_);
     RegisterNavigationLibrary(context_);
+
+    // Register Urho2D library
+    RegisterUrho2DLibrary(context);
 
     SubscribeToEvent(E_EXITREQUESTED, HANDLER(Engine, HandleExitRequested));
 }

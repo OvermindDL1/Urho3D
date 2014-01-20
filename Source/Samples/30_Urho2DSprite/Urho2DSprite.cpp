@@ -32,9 +32,9 @@
 #include "ResourceCache.h"
 #include "Scene.h"
 #include "Sprite2D.h"
-#include "StaticSprite.h"
 #include "StaticSprite2D.h"
 #include "Text.h"
+#include "Urho2DSprite.h"
 #include "Zone.h"
 
 #include "DebugNew.h"
@@ -44,14 +44,14 @@ static const unsigned NUM_SPRITES = 200;
 static const ShortStringHash VAR_MOVESPEED("MoveSpeed");
 static const ShortStringHash VAR_ROTATESPEED("RotateSpeed");
 
-DEFINE_APPLICATION_MAIN(StaticSprite)
+DEFINE_APPLICATION_MAIN(Urho2DSprite)
 
-StaticSprite::StaticSprite(Context* context) :
+Urho2DSprite::Urho2DSprite(Context* context) :
 Sample(context)
 {    
 }
 
-void StaticSprite::Start()
+void Urho2DSprite::Start()
 {
     // Execute base class startup
     Sample::Start();
@@ -69,7 +69,7 @@ void StaticSprite::Start()
     SubscribeToEvents();
 }
 
-void StaticSprite::CreateScene()
+void Urho2DSprite::CreateScene()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
@@ -86,15 +86,15 @@ void StaticSprite::CreateScene()
 
     for (unsigned i = 0; i < NUM_SPRITES; ++i)
     {
-        SharedPtr<Node> spriteNode(scene_->CreateChild("StaticSprite"));
+        SharedPtr<Node> spriteNode(scene_->CreateChild("Urho2DSprite"));
         NodeUtils::SetPosition(spriteNode, Vector2(Random(width) - width * 0.5f, Random(height) - height * 0.5f));
         spriteNode->SetScale(0.1f + Random(0.1f));
         NodeUtils::SetRotation(spriteNode, Random(360.0f));
 
-        StaticSprite2D* staticSprite = spriteNode->CreateComponent<StaticSprite2D>();
-        staticSprite->SetColor(Color(Random(1.0f), Random(1.0f), Random(1.0f), 1.0f));
-        staticSprite->SetBlendMode(BLEND_ADD);
-        staticSprite->SetSprite(sprite);
+        StaticSprite2D* Urho2DSprite = spriteNode->CreateComponent<StaticSprite2D>();
+        Urho2DSprite->SetColor(Color(Random(1.0f), Random(1.0f), Random(1.0f), 1.0f));
+        Urho2DSprite->SetBlendMode(BLEND_ADD);
+        Urho2DSprite->SetSprite(sprite);
 
         spriteNode->SetVar(VAR_MOVESPEED, Vector2(Random(400.0f) - 200.0f, Random(400.0f) - 200.0f));
         spriteNode->SetVar(VAR_ROTATESPEED, Random(360.0f) - 180.0f);
@@ -114,7 +114,7 @@ void StaticSprite::CreateScene()
     renderer->GetDefaultZone()->SetFogColor(Color(0.0f, 0.25f, 0.0f, 1.0f));
 }
 
-void StaticSprite::CreateInstructions()
+void Urho2DSprite::CreateInstructions()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
     UI* ui = GetSubsystem<UI>();
@@ -130,14 +130,14 @@ void StaticSprite::CreateInstructions()
     instructionText->SetPosition(0, ui->GetRoot()->GetHeight() / 4);
 }
 
-void StaticSprite::SetupViewport()
+void Urho2DSprite::SetupViewport()
 {
     Renderer* renderer = GetSubsystem<Renderer>();
     SharedPtr<Viewport> viewport(new Viewport(context_, scene_, cameraNode_->GetComponent<Camera>()));
     renderer->SetViewport(0, viewport);
 }
 
-void StaticSprite::MoveCamera(float timeStep)
+void Urho2DSprite::MoveCamera(float timeStep)
 {
     // Do not move if the UI has a focused element (the console)
     if (GetSubsystem<UI>()->GetFocusElement())
@@ -172,13 +172,13 @@ void StaticSprite::MoveCamera(float timeStep)
 }
 
 
-void StaticSprite::SubscribeToEvents()
+void Urho2DSprite::SubscribeToEvents()
 {
     // Subscribe HandleUpdate() function for processing update events
-    SubscribeToEvent(E_UPDATE, HANDLER(StaticSprite, HandleUpdate));
+    SubscribeToEvent(E_UPDATE, HANDLER(Urho2DSprite, HandleUpdate));
 }
 
-void StaticSprite::HandleUpdate(StringHash eventType, VariantMap& eventData)
+void Urho2DSprite::HandleUpdate(StringHash eventType, VariantMap& eventData)
 {
     using namespace Update;
 

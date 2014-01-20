@@ -30,18 +30,18 @@ namespace Urho3D
     class Scene;
 }
 
-/// Static sprite example.
+/// Urho2D sprite example.
 /// This sample demonstrates:
 ///     - Creating a 2D scene with static sprite
 ///     - Displaying the scene using the Renderer subsystem
 ///     - Handling keyboard to move and zoom 2D camera
-class StaticSprite : public Sample
+class Urho2DSprite : public Sample
 {
-    OBJECT(StaticSprite);
+    OBJECT(Urho2DSprite);
 
 public:
     /// Construct.
-    StaticSprite(Context* context);
+    Urho2DSprite(Context* context);
 
     /// Setup after engine initialization and before running the main loop.
     virtual void Start();

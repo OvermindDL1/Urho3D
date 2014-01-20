@@ -21,7 +21,7 @@
 #
 
 # Define target name
-set (TARGET_NAME 23_StaticSprite)
+set (TARGET_NAME 30_Urho2DSprite)
 
 # Define source files
 define_source_files (EXTRA_H_FILES ${COMMON_SAMPLE_H_FILES})
