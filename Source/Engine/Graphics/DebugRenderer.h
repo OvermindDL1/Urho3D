@@ -64,6 +64,33 @@ struct DebugLine
     unsigned color_;
 };
 
+/// Debug render triangle.
+struct DebugTriangle
+{
+    /// Construct undefined.
+    DebugTriangle()
+    {
+
+    }
+    /// Construct with start and end positions and color.
+    DebugTriangle(const Vector3& a, const Vector3& b, const Vector3& c, unsigned color) :
+        a_(a),
+        b_(b),
+        c_(c),
+        color_(color)
+    {
+    }
+
+    /// Vertex a.
+    Vector3 a_;
+    /// Vertex b.
+    Vector3 b_;
+    /// Vertex c.
+    Vector3 c_;
+    /// Color.
+    unsigned color_;
+};
+
 /// Debug geometry rendering component. Should be added only to the root scene node.
 class URHO3D_API DebugRenderer : public Component
 {
@@ -83,6 +110,10 @@ public:
     void AddLine(const Vector3& start, const Vector3& end, const Color& color, bool depthTest = true);
     /// Add a line with color already converted to unsigned.
     void AddLine(const Vector3& start, const Vector3& end, unsigned color, bool depthTest = true);
+    /// Add a triangle.
+    void AddTriangle(const Vector3& a, const Vector3& b, const Vector3& c, const Color& color, bool depthTest = true);
+    /// Add a triangle with color already converted to unsigned.
+    void AddTriangle(const Vector3& a, const Vector3& b, const Vector3& c, unsigned color, bool depthTest = true);
     /// Add a scene node represented as its coordinate axes.
     void AddNode(Node* node, float scale = 1.0f, bool depthTest = true);
     /// Add a bounding box.
@@ -119,6 +150,10 @@ private:
     PODVector<DebugLine> lines_;
     /// Lines rendered without depth test.
     PODVector<DebugLine> noDepthLines_;
+    /// Triangles rendered with depth test.
+    PODVector<DebugTriangle> triangles_;
+    /// Triangles rendered without depth test.
+    PODVector<DebugTriangle> noDepthTriangles_;
     /// View transform.
     Matrix3x4 view_;
     /// Projection transform.
