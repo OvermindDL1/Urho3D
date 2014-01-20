@@ -20,27 +20,40 @@
 // THE SOFTWARE.
 //
 
-#include "Precompiled.h"
-#include "Sprite2D.h"
-#include "SpriteSheet2D.h"
-#include "Drawable2D.h"
-#include "StaticSprite2D.h"
-#include "PhysicsWorld2D.h"
+#pragma once
 
-#include "DebugNew.h"
+#include "Color.h"
+#include "Vector2.h"
+#include "Vector3.h"
+
+#include <Box2D/Box2D.h>
 
 namespace Urho3D
 {
 
-const char* URHO2D_CATEGORY = "Urho2D";
-
-void RegisterUrho2DLibrary(Context* context)
+inline b2Vec2 ToB2Vec2(const Vector2& vector)
 {
-    Sprite2D::RegisterObject(context);
-    SpriteSheet2D::RegisterObject(context);
-    Drawable2D::RegisterObject(context);
-    StaticSprite2D::RegisterObject(context);
-    PhysicsWorld2D::RegisterObject(context);
+    return b2Vec2(vector.x_, vector.y_);
+}
+
+inline b2Vec2 ToB2Vec2(const Vector3& vector)
+{
+    return b2Vec2(vector.x_, vector.y_);
+}
+
+inline Color ToColor(const b2Color& color)
+{
+    return Color(color.r, color.g, color.b);
+}
+
+inline Vector2 ToVector2(const b2Vec2& vec2)
+{
+    return Vector2(vec2.x, vec2.y);
+}
+
+inline Vector3 ToVector3(const b2Vec2& vec2)
+{
+    return Vector3(vec2.x, vec2.y, 0.0f);
 }
 
 }
