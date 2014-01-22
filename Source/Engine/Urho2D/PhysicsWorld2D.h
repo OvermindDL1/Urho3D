@@ -101,7 +101,7 @@ public:
     /// Step the simulation forward.
     void Update(float timeStep);
     /// Add debug geometry to the debug renderer.
-    void DrawDebugGeometry(bool depthTest);
+    void DrawDebugGeometry();
     /// Set debug renderer to use. Called both by PhysicsWorld2D itself and physics components.
     void SetDebugRenderer(DebugRenderer* debug);
     /// Set debug geometry depth test mode. Called both by PhysicsWorld2D itself and physics components.

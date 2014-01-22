@@ -44,7 +44,7 @@ PhysicsWorld2D::PhysicsWorld2D(Context* context) :
     debugRenderer_(0)
 {
     // Set default debug draw flags
-    m_drawFlags = DEBUGDRAW_SHAPE | DEBUGDRAW_JOINT;
+    m_drawFlags = DEBUGDRAW_SHAPE | DEBUGDRAW_JOINT | DEBUGDRAW_CENTEROFMASS;
 
     // Create Box2D world
     world_ = new b2World(ToB2Vec2(gravity_));
@@ -250,16 +250,13 @@ void PhysicsWorld2D::Update(float timeStep)
     world_->SetSubStepping(true);
 
     world_->Step(timeStep, velocityIterations_, positionIterations_);
-
-    // TODO: Draw debug geometry here
-    DrawDebugGeometry(false);
 }
 
-void PhysicsWorld2D::DrawDebugGeometry(bool depthTest)
+void PhysicsWorld2D::DrawDebugGeometry()
 {
     DebugRenderer* debug = GetComponent<DebugRenderer>();
     if (debug)
-        DrawDebugGeometry(debug, depthTest);
+        DrawDebugGeometry(debug, false);
 }
 
 void PhysicsWorld2D::SetDebugRenderer(DebugRenderer* debug)
