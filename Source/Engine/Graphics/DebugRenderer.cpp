@@ -399,6 +399,34 @@ void DebugRenderer::Render()
         *((unsigned*)dest) = triangle.color_; dest++;
     }
 
+    for (unsigned i = 0; i < triangles_.Size(); ++i)
+    {
+        const DebugTriangle& triangle = triangles_[i];
+
+        *dest++ = triangle.a_.x_; *dest++ = triangle.a_.y_; *dest++ = triangle.a_.z_;
+        *((unsigned*)dest) = triangle.color_; dest++;
+
+        *dest++ = triangle.b_.x_; *dest++ = triangle.b_.y_; *dest++ = triangle.b_.z_;
+        *((unsigned*)dest) = triangle.color_; dest++;
+
+        *dest++ = triangle.c_.x_; *dest++ = triangle.c_.y_; *dest++ = triangle.c_.z_;
+        *((unsigned*)dest) = triangle.color_; dest++;
+    }
+
+    for (unsigned i = 0; i < noDepthTriangles_.Size(); ++i)
+    {
+        const DebugTriangle& triangle = noDepthTriangles_[i];
+
+        *dest++ = triangle.a_.x_; *dest++ = triangle.a_.y_; *dest++ = triangle.a_.z_;
+        *((unsigned*)dest) = triangle.color_; dest++;
+
+        *dest++ = triangle.b_.x_; *dest++ = triangle.b_.y_; *dest++ = triangle.b_.z_;
+        *((unsigned*)dest) = triangle.color_; dest++;
+
+        *dest++ = triangle.c_.x_; *dest++ = triangle.c_.y_; *dest++ = triangle.c_.z_;
+        *((unsigned*)dest) = triangle.color_; dest++;
+    }
+
     vertexBuffer_->Unlock();
 
     graphics->SetBlendMode(BLEND_REPLACE);
