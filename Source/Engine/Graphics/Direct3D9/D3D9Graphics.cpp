@@ -29,7 +29,6 @@
 #include "CustomGeometry.h"
 #include "DebugRenderer.h"
 #include "DecalSet.h"
-#include "Drawable2D.h"
 #include "Graphics.h"
 #include "GraphicsEvents.h"
 #include "GraphicsImpl.h"
@@ -43,10 +42,7 @@
 #include "Shader.h"
 #include "ShaderVariation.h"
 #include "Skybox.h"
-#include "Sprite2D.h"
-#include "SpriteSheet2D.h"
 #include "StaticModelGroup.h"
-#include "StaticSprite2D.h"
 #include "Technique.h"
 #include "Terrain.h"
 #include "TerrainPatch.h"
@@ -2660,10 +2656,6 @@ void RegisterGraphicsLibrary(Context* context)
     DebugRenderer::RegisterObject(context);
     Octree::RegisterObject(context);
     Zone::RegisterObject(context);
-    Sprite2D::RegisterObject(context);
-    SpriteSheet2D::RegisterObject(context);
-    Drawable2D::RegisterObject(context);
-    StaticSprite2D::RegisterObject(context);
 }
 
 }

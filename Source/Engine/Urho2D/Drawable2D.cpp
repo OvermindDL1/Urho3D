@@ -258,15 +258,15 @@ void Drawable2D::UpdateMaterial(bool forceUpdate)
         material = new Material(context_);
         Technique* tech = new Technique(context_);
         Pass* pass = tech->CreatePass(PASS_ALPHA);
-        pass->SetVertexShader("Basic_DiffVCol");
+        pass->SetVertexShader("Basic");
+        pass->SetVertexShaderDefines("DIFFMAP VERTEXCOLOR");
 
-        if (blendMode_ != BLEND_ALPHA && blendMode_ != BLEND_ADDALPHA && blendMode_ != BLEND_PREMULALPHA)
-            pass->SetPixelShader("Basic_DiffVCol");
-        else
-            pass->SetPixelShader("Basic_DiffAlphaMaskVCol");
-
+        pass->SetPixelShader("Basic");
+        pass->SetPixelShaderDefines("DIFFMAP VERTEXCOLOR");
+        
         pass->SetBlendMode(blendMode_);
         pass->SetDepthWrite(false);
+
         material->SetTechnique(0, tech);
         material->SetCullMode(CULL_NONE);
     }

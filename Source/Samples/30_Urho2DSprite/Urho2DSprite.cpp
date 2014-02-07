@@ -93,7 +93,7 @@ void Urho2DSprite::CreateScene()
 
         StaticSprite2D* Urho2DSprite = spriteNode->CreateComponent<StaticSprite2D>();
         Urho2DSprite->SetColor(Color(Random(1.0f), Random(1.0f), Random(1.0f), 1.0f));
-        Urho2DSprite->SetBlendMode(BLEND_ADD);
+        Urho2DSprite->SetBlendMode(BLEND_ALPHA);
         Urho2DSprite->SetSprite(sprite);
 
         spriteNode->SetVar(VAR_MOVESPEED, Vector2(Random(400.0f) - 200.0f, Random(400.0f) - 200.0f));
