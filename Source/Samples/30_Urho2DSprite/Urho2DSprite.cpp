@@ -80,7 +80,7 @@ void Urho2DSprite::CreateScene()
     float width = (float)graphics->GetWidth();
     float height = (float)graphics->GetHeight();
 
-    Sprite2D* sprite = cache->GetResource<Sprite2D>("Textures/UrhoDecal.dds");
+    Sprite2D* sprite = cache->GetResource<Sprite2D>("Textures/Flower.png");
     if (!sprite)
         return;
 
@@ -88,7 +88,7 @@ void Urho2DSprite::CreateScene()
     {
         SharedPtr<Node> spriteNode(scene_->CreateChild("Urho2DSprite"));
         NodeUtils::SetPosition(spriteNode, Vector2(Random(width) - width * 0.5f, Random(height) - height * 0.5f));
-        spriteNode->SetScale(0.1f + Random(0.1f));
+        spriteNode->SetScale(0.2f + Random(0.2f));
         NodeUtils::SetRotation(spriteNode, Random(360.0f));
 
         StaticSprite2D* Urho2DSprite = spriteNode->CreateComponent<StaticSprite2D>();
@@ -97,7 +97,7 @@ void Urho2DSprite::CreateScene()
         Urho2DSprite->SetSprite(sprite);
 
         spriteNode->SetVar(VAR_MOVESPEED, Vector2(Random(400.0f) - 200.0f, Random(400.0f) - 200.0f));
-        spriteNode->SetVar(VAR_ROTATESPEED, Random(360.0f) - 180.0f);
+        spriteNode->SetVar(VAR_ROTATESPEED, Random(90.0f) - 45.0f);
         spriteNodes_.Push(spriteNode);
     }
 
