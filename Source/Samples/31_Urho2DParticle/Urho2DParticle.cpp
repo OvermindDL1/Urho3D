@@ -77,13 +77,10 @@ void Urho2DParticle::CreateScene()
     float height = (float)graphics->GetHeight();
 
     {
-        SharedPtr<Node> particleNode(scene_->CreateChild("Urho2DParticle"));
-        // particleNode->SetScale(0.2f);
+        particleNode_ = scene_->CreateChild("Urho2DParticle");
         
-        ParticleEmitter2D* Urho2DParticle = particleNode->CreateComponent<ParticleEmitter2D>();
+        ParticleEmitter2D* Urho2DParticle = particleNode_->CreateComponent<ParticleEmitter2D>();
         Urho2DParticle->Load("Particle/LavaFlow.plist");
-        
-        // spriteNodes_.Push(particleNode);
     }
 
     // Create camera node

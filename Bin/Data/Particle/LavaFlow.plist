@@ -95,6 +95,6 @@
 	<key>tangentialAcceleration</key>
 	<real>0.0</real>
 	<key>textureFileName</key>
-	<string>Textures/Flower.png</string>
+	<string>Textures/LavaFlow.png</string>
 </dict>
 </plist>

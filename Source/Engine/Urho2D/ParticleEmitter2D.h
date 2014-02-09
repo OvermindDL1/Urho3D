@@ -27,6 +27,8 @@
 namespace Urho3D
 {
 
+class XMLFile;
+
 /// 2D particle emitter types.
 enum EmitterType2D
 {
@@ -34,37 +36,37 @@ enum EmitterType2D
     EMITTER_TYPE_RADIAL
 };
 
-/// 2D Particle.
+/// 2D particle.
  struct Particle2D
 {
     /// Time to live.
     float timeToLive_;
+    /// Start position.
+    Vector2 startPos_;
     /// Position.
     Vector2 position_;
     /// Velocity.
     Vector2 velocity_;
-    /// Size.
-    float size_;
-    /// Size delta.
-    float sizeDelta_;
-    /// Rotation.
-    float rotation_;
-    /// Rotation delta.
-    float rotationDelta_;
-    /// Color.
-    Color color_;
-    /// Color delta.
-    Color colorDelta_;    
-    /// Start position.
-    Vector2 startPos_;
-    /// Radial acceleration.
-    float radialAccel_;
-    /// Tangential acceleration.
-    float tangentialAccel_;
     /// Radius.
     float radius_;
     /// Radius delta.
     float radiusDelta_;
+    /// Rotation.
+    float rotation_;
+    /// Rotation delta.
+    float rotationDelta_;
+    /// Radial acceleration.
+    float radialAccel_;
+    /// Tangential acceleration.
+    float tangentialAccel_;
+    /// Size.
+    float size_;
+    /// Size delta.
+    float sizeDelta_;
+    /// Color.
+    Color color_;
+    /// Color delta.
+    Color colorDelta_;
 };
 
 /// 2D particle emitter component.
@@ -77,18 +79,20 @@ public:
     ParticleEmitter2D(Context* context);
     /// Destruct.
     ~ParticleEmitter2D();
-    /// Register object factory. Drawable2D must be registered first.
+    /// Register object factory. drawable2d must be registered first.
     static void RegisterObject(Context* context);
 
     /// Handle enabled/disabled state change.
     virtual void OnSetEnabled();
-    /// Update before octree reinsertion. Is called from a worker thread.
+    /// Update before octree reinsertion. is called from a worker thread.
     virtual void Update(const FrameInfo& frame);
 
-    /// Load from file.
+    /// Load emitter parameters from an xml file.
     bool Load(const String& fileName);
+    /// Load emitter parameters from an xml file.
+    bool Load(XMLFile* file);
 
-    /// Set emitter duration.
+    /// Set duration.
     void SetDuration(float duration);
     /// Set emitter type.
     void SetEmitterType(EmitterType2D emitterType);
@@ -96,7 +100,6 @@ public:
     void SetSourcePosition(const Vector2& sourcePosition);
     /// Set source position variance.
     void SetSourcePositionVariance(const Vector2& sourcePositionVariance);
-
     /// Set max particles.
     void SetMaxParticles(int maxParticles);
     /// Set particle lifespan
@@ -115,7 +118,6 @@ public:
     void SetEmitAngle(float emitAngle);
     /// Set angle variance.
     void SetEmitAngleVariance(float emitAngleVariance);
-
     /// Set speed.
     void SetSpeed(float speed);
     /// Set speed variance.
@@ -130,7 +132,6 @@ public:
     void SetTangentialAcceleration(float tangentialAcceleration);
     /// Set tangential acceleration variance.
     void SetTangentialAccelerationVariance(float tangentialAccelerationVariance);
-
     /// Set max radius.
     void SetMaxRadius(float maxRadius);
     /// Set max radius variance.
@@ -141,10 +142,9 @@ public:
     void SetRotatePerSecond(float rotatePerSecond);
     /// Set rotate per second variance.
     void SetRotatePerSecondVariance(float rotatePerSecondVariance);
-
     /// Set start color.
     void SetStartColor(const Color& startColor);
-    /// Set start color  variance.
+    /// Set start color variance.
     void SetStartColorVariance(const Color& startColorVariance);
     /// Set end color.
     void SetEndColor(const Color& endColor);
@@ -153,7 +153,7 @@ public:
     /// Set blend function.
     void SetBlendFunction(int blendFuncSource, int blendFuncDestination);
 
-    /// Get emitter duration.
+    /// Get duration.
     float GetDuration() const { return duration_; }
     /// Get emitter type.
     EmitterType2D GetEmitterType() const { return emitterType_; }
@@ -161,7 +161,6 @@ public:
     const Vector2& GetSourcePosition() const { return sourcePosition_; }
     /// Get source position variance.
     const Vector2& GetSourcePositionVariance() const { return sourcePositionVariance_; }
-
     /// Get max particles.
     int GetMaxParticles() const { return maxParticles_; }
     /// Get particle lifespan
@@ -180,7 +179,6 @@ public:
     float GetEmitAngle() const { return emitAngle_; }
     /// Get angle variance.
     float GetEmitAngleVariance() const { return emitAngleVariance_; }
-
     /// Get speed.
     float GetSpeed() const { return speed_; }
     /// Get speed variance.
@@ -195,7 +193,6 @@ public:
     float GetTangentialAcceleration() const { return tangentialAcceleration_; }
     /// Get tangential acceleration variance.
     float GetTangentialAccelerationVariance() const { return tangentialAccelerationVariance_; }
-
     /// Get max radius.
     float GetMaxRadius() const { return maxRadius_; }
     /// Get max radius variance.
@@ -206,10 +203,9 @@ public:
     float GetRotatePerSecond() const { return rotatePerSecond_; }
     /// Get rotate per second variance.
     float GetRotatePerSecondVariance() const { return rotatePerSecondVariance_; }
-
     /// Get start color.
     const Color& GetStartColor() const { return startColor_; }
-    /// Get start color  variance.
+    /// Get start color variance.
     const Color& GetStartColorVariance() const { return startColorVariance_; }
     /// Get end color.
     const Color& GetEndColor() const { return endColor_; }
@@ -234,12 +230,12 @@ private:
 
     /// Num particles.
     int numParticles_;
-    /// Time to emit particle.
-    float timeToEmitParticle_;
     /// Particles.
     Vector<Particle2D> particles_;
+    /// Time to emit particle.
+    float emitParticleTime_;
 
-    /// Emitter duration.
+    /// Duration.
     float duration_;
     /// Emitter type.
     EmitterType2D emitterType_;
@@ -247,7 +243,6 @@ private:
     Vector2 sourcePosition_;
     /// Source position variance.
     Vector2 sourcePositionVariance_;
-
     /// Max particles.
     int maxParticles_;
     /// Particle lifespan
@@ -266,7 +261,6 @@ private:
     float emitAngle_;
     /// Angle variance.
     float emitAngleVariance_;
-    
     /// Speed.
     float speed_;
     /// Speed variance.
@@ -281,7 +275,6 @@ private:
     float tangentialAcceleration_;
     /// Tangential acceleration variance.
     float tangentialAccelerationVariance_;
-
     /// Max radius.
     float maxRadius_;
     /// Max radius variance.
@@ -292,10 +285,9 @@ private:
     float rotatePerSecond_;
     /// Rotate per second variance.
     float rotatePerSecondVariance_;
-
     /// Start color.
     Color startColor_;
-    /// Start color  variance.
+    /// Start color variance.
     Color startColorVariance_;
     /// End color.
     Color endColor_;

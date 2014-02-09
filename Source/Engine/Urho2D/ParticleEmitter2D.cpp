@@ -36,16 +36,49 @@
 namespace Urho3D
 {
 
-extern const char* GEOMETRY_CATEGORY;
+extern const char* URHO2D_CATEGORY;
+
+static const char* emitterTypeName[] =
+{
+    "Gravity",
+    "Radial",
+    0
+};
+
+template<> EmitterType2D Variant::Get<EmitterType2D>() const
+{
+    return (EmitterType2D)GetInt();
+}
+
+static const int srcBlendFuncs[] =
+{
+    1,      // GL_ONE
+    1,      // GL_ONE
+    0x0306, // GL_DST_COLOR
+    0x0302, // GL_SRC_ALPHA
+    0x0302, // GL_SRC_ALPHA
+    1,      // GL_ONE
+    0x0305  // GL_ONE_MINUS_DST_ALPHA
+};
+
+static const int destBlendFuncs[] =
+{
+    0,      // GL_ZERO
+    1,      // GL_ONE
+    0,      // GL_ZERO
+    0x0303, // GL_ONE_MINUS_SRC_ALPHA
+    1,      // GL_ONE
+    0x0303, // GL_ONE_MINUS_SRC_ALPHA
+    0x0304  // GL_DST_ALPHA
+};
 
 ParticleEmitter2D::ParticleEmitter2D(Context* context) : Drawable2D(context), 
     numParticles_(0),
-    timeToEmitParticle_(0.0f),
+    emitParticleTime_(0.0f),
     duration_(-1.0f),
     emitterType_(EMITTER_TYPE_GRAVITY),
     sourcePosition_(Vector2::ZERO),
     sourcePositionVariance_(Vector2::ZERO),
-    
     maxParticles_(32),
     particleLifeSpan_(1.0f),
     particleLifeSpanVariance_(0.0f),
@@ -55,7 +88,6 @@ ParticleEmitter2D::ParticleEmitter2D(Context* context) : Drawable2D(context),
     endParticleSizeVariance_(0.0f),
     emitAngle_(0.0f),
     emitAngleVariance_(0.0f),
-    
     speed_(100.0f),
     speedVariance_(0.0f),
     gravity_(Vector2::ZERO),
@@ -63,13 +95,11 @@ ParticleEmitter2D::ParticleEmitter2D(Context* context) : Drawable2D(context),
     radialAccelerationVariance_(0.0f),
     tangentialAcceleration_(0.0f),
     tangentialAccelerationVariance_(0.0f),
-
     maxRadius_(100.0f),
     maxRadiusVariance_(0.0f),
     minRadius_(0.0f),
-    rotatePerSecond_(100.0f),
-    rotatePerSecondVariance_(100.0f),
-
+    rotatePerSecond_(0.0f),
+    rotatePerSecondVariance_(0.0f),
     startColor_(Color::WHITE),
     startColorVariance_(Color::TRANSPARENT),
     endColor_(Color::WHITE),
@@ -85,12 +115,37 @@ ParticleEmitter2D::~ParticleEmitter2D()
 
 void ParticleEmitter2D::RegisterObject(Context* context)
 {
-    context->RegisterFactory<ParticleEmitter2D>(GEOMETRY_CATEGORY);
+    context->RegisterFactory<ParticleEmitter2D>(URHO2D_CATEGORY);
 
-    // ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Unit Per Pixel", GetUnitPerPixel, SetUnitPerPixel, float, 1.0f, AM_DEFAULT);
-    // ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_BOOL, "Flip X", GetFlipX, SetFlipX, bool, false, AM_DEFAULT);
-    // ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_BOOL, "Flip Y", GetFlipY, SetFlipY, bool, false, AM_DEFAULT);
-    // REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_COLOR, "Color", GetColor, SetColor, Color, Color::WHITE, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Duration", GetDuration, SetDuration, float, -1.0f, AM_DEFAULT);    
+    ENUM_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, "Emitter Type", GetEmitterType, SetEmitterType, EmitterType2D, emitterTypeName, EMITTER_TYPE_GRAVITY, AM_DEFAULT);
+    REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_VECTOR2, "Source Position", GetSourcePosition, SetSourcePosition, Vector2, Vector2::ZERO, AM_DEFAULT);
+    REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_VECTOR2, "Source Position Variance", GetSourcePositionVariance, SetSourcePositionVariance, Vector2, Vector2::ZERO, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_INT, "Max Particles", GetMaxParticles, SetMaxParticles, int, 32, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Particle Lifespan", GetParticleLifeSpan, SetParticleLifeSpan, float, 1.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Particle Lifespan Variance", GetParticleLifeSpanVariance, SetParticleLifeSpanVariance, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Start Particle Size", GetStartParticleSize, SetStartParticleSize, float, 1.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Start Particle Size variance", GetStartParticleSizeVariance, SetStartParticleSizeVariance, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "End Particle Size", GetEndParticleSize, SetEndParticleSize, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "End Particle Size Variance", GetEndParticleSizeVariance, SetEndParticleSizeVariance, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Emit Angle", GetEmitAngle, SetEmitAngle, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Emit Angle Variance", GetEmitAngleVariance, SetEmitAngleVariance, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Speed", GetSpeed, SetSpeed, float, 100.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Speed Variance", GetSpeedVariance, SetSpeedVariance, float, 0.0f, AM_DEFAULT);
+    REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_VECTOR2, "Gravity", GetGravity, SetGravity, Vector2, Vector2::ZERO, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Radial Acceleration", GetRadialAcceleration, SetRadialAcceleration, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Radial Acceleration Variance", GetRadialAccelerationVariance, SetRadialAccelerationVariance, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Tangential Acceleration", GetTangentialAcceleration, SetTangentialAcceleration, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Tangential Acceleration Variance", GetTangentialAccelerationVariance, SetTangentialAccelerationVariance, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Max Radius", GetMaxRadius, SetMaxRadius, float, 100.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Max Radius Variance", GetMaxRadiusVariance, SetMaxRadiusVariance, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Min Radius", GetMinRadius, SetMinRadius, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Rotate per Second", GetRotatePerSecond, SetRotatePerSecond, float, 0.0f, AM_DEFAULT);
+    ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Rotate per Second Variance", GetRotatePerSecondVariance, SetRotatePerSecondVariance, float, 0.0f, AM_DEFAULT);
+    REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_COLOR, "Start Color", GetStartColor, SetStartColor, Color, Color::WHITE, AM_DEFAULT);
+    REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_COLOR, "Start Color Variance", GetStartColorVariance, SetStartColorVariance, Color, Color::WHITE, AM_DEFAULT);
+    REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_COLOR, "End Color", GetEndColor, SetEndColor, Color, Color::WHITE, AM_DEFAULT);
+    REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_COLOR, "End Color Variance", GetEndColorVariance, SetEndColorVariance, Color, Color::WHITE, AM_DEFAULT);
     COPY_BASE_ATTRIBUTES(ParticleEmitter2D, Drawable2D);
 }
 
@@ -134,11 +189,11 @@ void ParticleEmitter2D::Update(const FrameInfo& frame)
     if (duration_ < 0.0f || duration_ > 0.0f)
     {
         float timeBetweenParticles = particleLifeSpan_ / maxParticles_;   
-        timeToEmitParticle_ += timeStep;
-        while (timeToEmitParticle_ > 0.0f)
+        emitParticleTime_ += timeStep;
+        while (emitParticleTime_ > 0.0f)
         {
             EmitParticle();
-            timeToEmitParticle_ -= timeBetweenParticles;
+            emitParticleTime_ -= timeBetweenParticles;
         }
 
         if (duration_ > 0.0f)
@@ -156,6 +211,11 @@ bool ParticleEmitter2D::Load(const String& fileName)
     if (!xmlFile)
         return false;
 
+    return Load(xmlFile);
+}
+
+bool ParticleEmitter2D::Load(XMLFile* xmlFile)
+{
     XMLElement plistElem = xmlFile->GetRoot("plist");
     if (!plistElem)
         return false;
@@ -190,6 +250,7 @@ bool ParticleEmitter2D::Load(const String& fileName)
     }
 
     const String& textureFileName = keyValueMapping["textureFileName"].GetString();
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
     Sprite2D* sprite2D = cache->GetResource<Sprite2D>(textureFileName);
     if (!sprite2D)
         return false;
@@ -197,12 +258,9 @@ bool ParticleEmitter2D::Load(const String& fileName)
 
     SetDuration(keyValueMapping["duration"].GetFloat());
     SetEmitterType((EmitterType2D)(int)keyValueMapping["emitterType"].GetFloat());
-    
-    Vector2 sourcePosition;
-    sourcePosition.x_ = keyValueMapping["sourcePositionx"].GetFloat();
-    sourcePosition.y_ = keyValueMapping["sourcePositiony"].GetFloat();
-    SetSourcePosition(sourcePosition);
-    
+
+    // Ignore source position in xml file
+    SetSourcePosition(Vector2::ZERO);
     Vector2 sourcePositionVariance;
     sourcePositionVariance.x_ = keyValueMapping["sourcePositionVariancex"].GetFloat();
     sourcePositionVariance.y_ = keyValueMapping["sourcePositionVariancey"].GetFloat();
@@ -218,7 +276,7 @@ bool ParticleEmitter2D::Load(const String& fileName)
     SetEndParticleSizeVariance(keyValueMapping["finishParticleSizeVariance"].GetFloat());
     SetEmitAngle(keyValueMapping["angle"].GetFloat());
     SetEmitAngleVariance(keyValueMapping["angleVariance"].GetFloat());
-    
+
     SetSpeed(keyValueMapping["speed"].GetFloat());
     SetSpeedVariance(keyValueMapping["speedVariance"].GetFloat());
 
@@ -424,28 +482,6 @@ void ParticleEmitter2D::SetEndColorVariance(const Color& endColorVariance)
     endColorVariance_ = endColorVariance;
 }
 
-static const int srcBlendFuncs[] =
-{
-    1,      // GL_ONE
-    1,      // GL_ONE
-    0x0306, // GL_DST_COLOR
-    0x0302, // GL_SRC_ALPHA
-    0x0302, // GL_SRC_ALPHA
-    1,      // GL_ONE
-    0x0305  // GL_ONE_MINUS_DST_ALPHA
-};
-
-static const int destBlendFuncs[] =
-{
-    0,      // GL_ZERO
-    1,      // GL_ONE
-    0,      // GL_ZERO
-    0x0303, // GL_ONE_MINUS_SRC_ALPHA
-    1,      // GL_ONE
-    0x0303, // GL_ONE_MINUS_SRC_ALPHA
-    0x0304 // GL_DST_ALPHA
-};
-
 void ParticleEmitter2D::SetBlendFunction(int blendFuncSource, int blendFuncDestination)
 {
     blendFuncSource_ = blendFuncSource;
@@ -508,10 +544,8 @@ void ParticleEmitter2D::UpdateVertices()
     {
         Particle2D& p = particles_[i];
 
-        // float c = Cos(p.rotation_);
-        // float s = Sin(p.rotation_);
-        float c = 1.0f;
-        float s = 0.0f;
+        float c = Cos(p.rotation_);
+        float s = Sin(p.rotation_);
         float add = (c + s) * p.size_ * 0.5f;
         float sub = (c - s) * p.size_ * 0.5f;
 
@@ -551,14 +585,14 @@ void ParticleEmitter2D::EmitParticle()
     Particle2D& particle = particles_[numParticles_++];
     
     particle.timeToLive_ = lifespan;
+    particle.startPos_ = sourcePosition_;
     particle.position_.x_ = sourcePosition_.x_ + sourcePositionVariance_.x_ * Random(-1.0f, 1.0f);
     particle.position_.y_ = sourcePosition_.y_ + sourcePositionVariance_.y_ * Random(-1.0f, 1.0f);
-    particle.startPos_ = sourcePosition_;
-    
+
     float angle = emitAngle_ + emitAngleVariance_ * Random(-1.0f, 1.0f);
     float speed = speed_ + speedVariance_ * Random(-1.0f, 1.0f);
-    particle.velocity_.x_ = speed * cosf(angle);
-    particle.velocity_.y_ = speed * sinf(angle);
+    particle.velocity_.x_ = speed * Cos(angle);
+    particle.velocity_.y_ = speed * Sin(angle);
 
     particle.radius_ = maxRadius_, maxRadiusVariance_ * Random(-1.0f, 1.0f);
     particle.radiusDelta_ = maxRadius_ / lifespan;
@@ -629,7 +663,6 @@ void ParticleEmitter2D::UpdateParticle(Particle2D& particle, float timeStep)
 
     particle.size_ += particle.sizeDelta_ * timeStep;
 
-    // Update the particle's color
     particle.color_.r_ += particle.colorDelta_.r_ * timeStep;
     particle.color_.g_ += particle.colorDelta_.g_ * timeStep;
     particle.color_.b_ += particle.colorDelta_.b_ * timeStep;

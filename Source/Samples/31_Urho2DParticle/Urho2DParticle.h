@@ -64,4 +64,6 @@ private:
     SharedPtr<Scene> scene_;
     /// Camera scene node.
     SharedPtr<Node> cameraNode_;
+    /// Particle scene node.
+    SharedPtr<Node> particleNode_;
 };

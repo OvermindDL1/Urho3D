@@ -31,7 +31,7 @@
 namespace Urho3D
 {
 
-extern const char* GEOMETRY_CATEGORY;
+extern const char* URHO2D_CATEGORY;
 
 StaticSprite2D::StaticSprite2D(Context* context) : Drawable2D(context),
     flipX_(false),
@@ -47,7 +47,7 @@ StaticSprite2D::~StaticSprite2D()
 
 void StaticSprite2D::RegisterObject(Context* context)
 {
-    context->RegisterFactory<StaticSprite2D>(GEOMETRY_CATEGORY);
+    context->RegisterFactory<StaticSprite2D>(URHO2D_CATEGORY);
     ACCESSOR_ATTRIBUTE(StaticSprite2D, VAR_BOOL, "Flip X", GetFlipX, SetFlipX, bool, false, AM_DEFAULT);
     ACCESSOR_ATTRIBUTE(StaticSprite2D, VAR_BOOL, "Flip Y", GetFlipY, SetFlipY, bool, false, AM_DEFAULT);
     REF_ACCESSOR_ATTRIBUTE(StaticSprite2D, VAR_COLOR, "Color", GetColor, SetColor, Color, Color::WHITE, AM_DEFAULT);
