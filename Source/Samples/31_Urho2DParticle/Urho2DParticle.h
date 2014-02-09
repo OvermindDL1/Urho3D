@@ -32,7 +32,7 @@ namespace Urho3D
 
 /// Urho2D sprite example.
 /// This sample demonstrates:
-///     - Creating a 2D scene with static sprite
+///     - Creating a 2D scene with particle
 ///     - Displaying the scene using the Renderer subsystem
 ///     - Handling keyboard to move and zoom 2D camera
 class Urho2DParticle : public Sample
@@ -64,6 +64,6 @@ private:
     SharedPtr<Scene> scene_;
     /// Camera scene node.
     SharedPtr<Node> cameraNode_;
-    /// Particle scene node.
-    SharedPtr<Node> particleNode_;
+    /// Sprite nodes.
+    Vector<SharedPtr<Node> > particleNodes_;
 };

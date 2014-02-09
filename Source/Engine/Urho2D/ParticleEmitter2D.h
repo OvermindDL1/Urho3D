@@ -84,6 +84,8 @@ public:
 
     /// Handle enabled/disabled state change.
     virtual void OnSetEnabled();
+    /// Calculate distance and prepare batches for rendering. May be called from worker thread(s), possibly re-entrantly.
+    virtual void UpdateBatches(const FrameInfo& frame);
     /// Update before octree reinsertion. is called from a worker thread.
     virtual void Update(const FrameInfo& frame);
 
@@ -96,8 +98,6 @@ public:
     void SetDuration(float duration);
     /// Set emitter type.
     void SetEmitterType(EmitterType2D emitterType);
-    /// Set source position.
-    void SetSourcePosition(const Vector2& sourcePosition);
     /// Set source position variance.
     void SetSourcePositionVariance(const Vector2& sourcePositionVariance);
     /// Set max particles.
@@ -157,8 +157,6 @@ public:
     float GetDuration() const { return duration_; }
     /// Get emitter type.
     EmitterType2D GetEmitterType() const { return emitterType_; }
-    /// Get source position.
-    const Vector2& GetSourcePosition() const { return sourcePosition_; }
     /// Get source position variance.
     const Vector2& GetSourcePositionVariance() const { return sourcePositionVariance_; }
     /// Get max particles.
@@ -219,6 +217,8 @@ public:
 private:
     /// Handle node being assigned.
     virtual void OnNodeSet(Node* node);
+    /// Recalculate the world-space bounding box.
+    virtual void OnWorldBoundingBoxUpdate();
     /// Update vertices.
     virtual void UpdateVertices();
     /// Handle scene post update.
@@ -239,8 +239,6 @@ private:
     float duration_;
     /// Emitter type.
     EmitterType2D emitterType_;
-    /// Source position.
-    Vector2 sourcePosition_;
     /// Source position variance.
     Vector2 sourcePositionVariance_;
     /// Max particles.

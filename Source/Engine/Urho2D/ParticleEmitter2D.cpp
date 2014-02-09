@@ -21,7 +21,9 @@
 //
 
 #include "Precompiled.h"
+#include "Camera.h"
 #include "Context.h"
+#include "Drawable.h"
 #include "ParticleEmitter2D.h"
 #include "ResourceCache.h"
 #include "Scene.h"
@@ -77,7 +79,6 @@ ParticleEmitter2D::ParticleEmitter2D(Context* context) : Drawable2D(context),
     emitParticleTime_(0.0f),
     duration_(-1.0f),
     emitterType_(EMITTER_TYPE_GRAVITY),
-    sourcePosition_(Vector2::ZERO),
     sourcePositionVariance_(Vector2::ZERO),
     maxParticles_(32),
     particleLifeSpan_(1.0f),
@@ -119,7 +120,6 @@ void ParticleEmitter2D::RegisterObject(Context* context)
 
     ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Duration", GetDuration, SetDuration, float, -1.0f, AM_DEFAULT);    
     ENUM_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, "Emitter Type", GetEmitterType, SetEmitterType, EmitterType2D, emitterTypeName, EMITTER_TYPE_GRAVITY, AM_DEFAULT);
-    REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_VECTOR2, "Source Position", GetSourcePosition, SetSourcePosition, Vector2, Vector2::ZERO, AM_DEFAULT);
     REF_ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_VECTOR2, "Source Position Variance", GetSourcePositionVariance, SetSourcePositionVariance, Vector2, Vector2::ZERO, AM_DEFAULT);
     ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_INT, "Max Particles", GetMaxParticles, SetMaxParticles, int, 32, AM_DEFAULT);
     ACCESSOR_ATTRIBUTE(ParticleEmitter2D, VAR_FLOAT, "Particle Lifespan", GetParticleLifeSpan, SetParticleLifeSpan, float, 1.0f, AM_DEFAULT);
@@ -161,6 +161,18 @@ void ParticleEmitter2D::OnSetEnabled()
         else
             UnsubscribeFromEvent(scene, E_SCENEPOSTUPDATE);
     }
+}
+
+void ParticleEmitter2D::UpdateBatches(const FrameInfo& frame)
+{
+    if (materialDirty_)
+        UpdateMaterial();
+
+    // const Matrix3x4& worldTransform = node_->GetWorldTransform();
+    distance_ = frame.camera_->GetDistance(GetWorldBoundingBox().Center());
+
+    batches_[0].distance_ = distance_;
+    batches_[0].worldTransform_ = &Matrix3x4::IDENTITY;
 }
 
 void ParticleEmitter2D::Update(const FrameInfo& frame)
@@ -259,8 +271,6 @@ bool ParticleEmitter2D::Load(XMLFile* xmlFile)
     SetDuration(keyValueMapping["duration"].GetFloat());
     SetEmitterType((EmitterType2D)(int)keyValueMapping["emitterType"].GetFloat());
 
-    // Ignore source position in xml file
-    SetSourcePosition(Vector2::ZERO);
     Vector2 sourcePositionVariance;
     sourcePositionVariance.x_ = keyValueMapping["sourcePositionVariancex"].GetFloat();
     sourcePositionVariance.y_ = keyValueMapping["sourcePositionVariancey"].GetFloat();
@@ -340,11 +350,6 @@ void ParticleEmitter2D::SetDuration(float duration)
 void ParticleEmitter2D::SetEmitterType(EmitterType2D emitterType)
 {
     emitterType_ = emitterType;
-}
-
-void ParticleEmitter2D::SetSourcePosition(const Vector2& sourcePosition)
-{
-    sourcePosition_ = sourcePosition;
 }
 
 void ParticleEmitter2D::SetSourcePositionVariance(const Vector2& sourcePositionVariance)
@@ -512,6 +517,20 @@ void ParticleEmitter2D::OnNodeSet(Node* node)
     }
 }
 
+void ParticleEmitter2D::OnWorldBoundingBoxUpdate()
+{
+    if (verticesDirty_)
+    {
+        UpdateVertices();
+
+        boundingBox_.Clear();
+        for (unsigned i = 0; i < vertices_.Size(); ++i)
+            boundingBox_.Merge(vertices_[i].position_);
+    }
+
+    worldBoundingBox_ = boundingBox_;
+}
+
 void ParticleEmitter2D::UpdateVertices()
 {
     if (!verticesDirty_)
@@ -585,17 +604,24 @@ void ParticleEmitter2D::EmitParticle()
     Particle2D& particle = particles_[numParticles_++];
     
     particle.timeToLive_ = lifespan;
-    particle.startPos_ = sourcePosition_;
-    particle.position_.x_ = sourcePosition_.x_ + sourcePositionVariance_.x_ * Random(-1.0f, 1.0f);
-    particle.position_.y_ = sourcePosition_.y_ + sourcePositionVariance_.y_ * Random(-1.0f, 1.0f);
+    Vector3 worldPosition = GetNode()->GetWorldPosition();
+    particle.startPos_.x_ = worldPosition.x_;
+    particle.startPos_.y_ = worldPosition.y_;
+    particle.position_.x_ = worldPosition.x_ + sourcePositionVariance_.x_ * Random(-1.0f, 1.0f);
+    particle.position_.y_ = worldPosition.y_ + sourcePositionVariance_.y_ * Random(-1.0f, 1.0f);
 
     float angle = emitAngle_ + emitAngleVariance_ * Random(-1.0f, 1.0f);
     float speed = speed_ + speedVariance_ * Random(-1.0f, 1.0f);
     particle.velocity_.x_ = speed * Cos(angle);
     particle.velocity_.y_ = speed * Sin(angle);
 
-    particle.radius_ = maxRadius_, maxRadiusVariance_ * Random(-1.0f, 1.0f);
+    float worldScale = GetNode()->GetWorldScale().x_;
+    particle.velocity_ *= worldScale;
+
+    particle.radius_ = maxRadius_ + maxRadiusVariance_ * Random(-1.0f, 1.0f);
     particle.radiusDelta_ = maxRadius_ / lifespan;
+    particle.radius_ *= worldScale;
+    particle.radiusDelta_ *= worldScale;
 
     particle.rotation_ = emitAngle_ + emitAngleVariance_ * Random(-1.0f, 1.0f);
     particle.rotationDelta_ = rotatePerSecond_ + rotatePerSecondVariance_ * Random(-1.0f, 1.0f);
@@ -603,10 +629,16 @@ void ParticleEmitter2D::EmitParticle()
     particle.radialAccel_ = radialAcceleration_ + radialAccelerationVariance_ * Random(-1.0f, 1.0f);
     particle.tangentialAccel_ = tangentialAcceleration_ + tangentialAccelerationVariance_ * Random(-1.0f, 1.0f);
 
+    particle.radialAccel_ *= worldScale;
+    particle.tangentialAccel_ *= worldScale;
+
     float particleStartSize  = Max(0.1f, startParticleSize_ + startParticleSizeVariance_ * Random(-1.0f, 1.0f));
     float particleFinishSize = Max(0.1f, endParticleSize_ + endParticleSizeVariance_ * Random(-1.0f, 1.0f)); 
     particle.size_ = particleStartSize;
-    particle.sizeDelta_ = (particleFinishSize - particleStartSize) / lifespan;
+    particle.sizeDelta_ = (particleFinishSize - particleStartSize)/ lifespan ;
+    
+    particle.size_ *= worldScale;
+    particle.sizeDelta_ *= worldScale;
 
     Color startColor = startColor_ + startColorVariance_ * Random(-1.0f, 1.0f);
     Color endColor   = endColor_ +   endColorVariance_ * Random(-1.0f, 1.0f);
@@ -631,8 +663,9 @@ void ParticleEmitter2D::UpdateParticle(Particle2D& particle, float timeStep)
         particle.rotation_ += particle.rotationDelta_ * timeStep;
         particle.radius_   -= particle.radiusDelta_   * timeStep;
 
-        particle.position_.x_ = sourcePosition_.x_ - cosf(particle.rotation_) * particle.radius_;
-        particle.position_.y_ = sourcePosition_.y_ - sinf(particle.rotation_) * particle.radius_;
+        Vector3 worldPosition = GetNode()->GetWorldPosition();
+        particle.position_.x_ = worldPosition.x_ - cosf(particle.rotation_) * particle.radius_;
+        particle.position_.y_ = worldPosition.y_ - sinf(particle.rotation_) * particle.radius_;
 
         if (particle.radius_ < minRadius_)
             particle.timeToLive_ = 0.0f;                

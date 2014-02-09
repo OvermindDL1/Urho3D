@@ -31,12 +31,16 @@
 #include "Renderer.h"
 #include "ResourceCache.h"
 #include "Scene.h"
+#include "ParticleEmitter2D.h"
 #include "Text.h"
 #include "Urho2DParticle.h"
 #include "Zone.h"
-#include "ParticleEmitter2D.h"
 
 #include "DebugNew.h"
+
+// Number of particles to draw
+static const unsigned NUM_PARTICLES = 20;
+static const ShortStringHash VAR_MOVESPEED("MoveSpeed");
 
 DEFINE_APPLICATION_MAIN(Urho2DParticle)
 
@@ -67,8 +71,6 @@ void Urho2DParticle::CreateScene()
 {
     ResourceCache* cache = GetSubsystem<ResourceCache>();
 
-    // PropertyList* pList = cache->GetResource<PropertyList>("Particle/LavaFlow.plist");
-
     scene_ = new Scene(context_);
     scene_->CreateComponent<Octree>();
 
@@ -76,11 +78,18 @@ void Urho2DParticle::CreateScene()
     float width = (float)graphics->GetWidth();
     float height = (float)graphics->GetHeight();
 
+    for (unsigned i = 0; i < NUM_PARTICLES; ++i)
     {
-        particleNode_ = scene_->CreateChild("Urho2DParticle");
-        
-        ParticleEmitter2D* Urho2DParticle = particleNode_->CreateComponent<ParticleEmitter2D>();
-        Urho2DParticle->Load("Particle/LavaFlow.plist");
+        SharedPtr<Node> particleNode(scene_->CreateChild("Urho2DSprite"));
+        NodeUtils::SetPosition(particleNode, Vector2(Random(width) - width * 0.5f, Random(height) - height * 0.5f));
+        particleNode->SetScale(0.2f + Random(0.2f));
+        NodeUtils::SetRotation(particleNode, Random(360.0f));
+
+        ParticleEmitter2D* particleEmitter = particleNode->CreateComponent<ParticleEmitter2D>();
+        particleEmitter->Load("Particle/LavaFlow.plist");
+
+        particleNode->SetVar(VAR_MOVESPEED, Vector2(Random(400.0f) - 200.0f, Random(400.0f) - 200.0f));
+        particleNodes_.Push(particleNode);
     }
 
     // Create camera node
@@ -169,4 +178,32 @@ void Urho2DParticle::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     // Move the camera, scale movement with time step
     MoveCamera(timeStep);
+
+    Graphics* graphics = GetSubsystem<Graphics>();
+    float halfWidth = (float)graphics->GetWidth() * 0.5f;
+    float halfHeight = (float)graphics->GetHeight() * 0.5f;
+
+    for (unsigned i = 0; i < particleNodes_.Size(); ++i)
+    {
+        SharedPtr<Node> node = particleNodes_[i];
+
+        Vector2 position = NodeUtils::GetPosition(node);
+
+        Vector2 moveSpeed = node->GetVar(VAR_MOVESPEED).GetVector2();        
+        Vector2 newPosition = position + moveSpeed * timeStep;
+        if (newPosition.x_ < -halfWidth || newPosition.x_ > halfWidth)
+        {
+            newPosition.x_ = position.x_;
+            moveSpeed.x_ = -moveSpeed.x_;
+            node->SetVar(VAR_MOVESPEED, moveSpeed);
+        }
+        if (newPosition.y_ < -halfHeight || newPosition.y_ > halfHeight)
+        {
+            newPosition.y_ = position.y_;
+            moveSpeed.y_ = -moveSpeed.y_;
+            node->SetVar(VAR_MOVESPEED, moveSpeed);
+        }
+
+        NodeUtils::SetPosition(node, newPosition);
+    }
 }
