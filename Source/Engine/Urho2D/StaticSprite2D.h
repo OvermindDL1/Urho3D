@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2013 the Urho3D project.
+// Copyright (c) 2008-2014 the Urho3D project.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,8 +40,6 @@ public:
     /// Register object factory. Drawable2D must be registered first.
     static void RegisterObject(Context* context);
 
-    /// Set Unit per pixel.
-    void SetUnitPerPixel(float unitPerPixel);
     /// Set flip.
     void SetFlip(bool flipX, bool flipY);
     /// Set flip X.
@@ -51,8 +49,6 @@ public:
     /// Set color.
     void SetColor(const Color& color);
 
-    /// Return size.
-    float GetUnitPerPixel() const { return unitPerPixel_; }
     /// Return flip X.
     bool GetFlipX() const { return flipX_; }
     /// Return flip Y.
@@ -64,8 +60,6 @@ protected:
     /// Update vertices.
     virtual void UpdateVertices();
 
-    /// Unit per pixel.
-    float unitPerPixel_;
     /// Flip X.
     bool flipX_;
     /// Flip Y.

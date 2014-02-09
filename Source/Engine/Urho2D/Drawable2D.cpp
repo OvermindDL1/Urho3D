@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2013 the Urho3D project.
+// Copyright (c) 2008-2014 the Urho3D project.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,7 @@ namespace Urho3D
 extern const char* blendModeNames[];
 
 Drawable2D::Drawable2D(Context* context) : Drawable(context, DRAWABLE_GEOMETRY),
+    unitPerPixel_(1.0f),
     blendMode_(BLEND_REPLACE),
     zValue_(0.0f),
     vertexBuffer_(new VertexBuffer(context_)),
@@ -60,6 +61,7 @@ Drawable2D::~Drawable2D()
 
 void Drawable2D::RegisterObject(Context* context)
 {
+    ACCESSOR_ATTRIBUTE(Drawable2D, VAR_FLOAT, "Unit Per Pixel", GetUnitPerPixel, SetUnitPerPixel, float, 1.0f, AM_DEFAULT);
     ACCESSOR_ATTRIBUTE(Drawable2D, VAR_RESOURCEREF, "Sprite", GetSpriteAttr, SetSpriteAttr, ResourceRef, ResourceRef(Sprite2D::GetTypeStatic()), AM_FILE);
     ACCESSOR_ATTRIBUTE(Drawable2D, VAR_RESOURCEREF, "Material", GetMaterialAttr, SetMaterialAttr, ResourceRef, ResourceRef(Material::GetTypeStatic()), AM_DEFAULT);
     ENUM_ACCESSOR_ATTRIBUTE(Drawable2D, "Blend Mode", GetBlendMode, SetBlendMode, BlendMode, blendModeNames, 0, AM_FILE);
@@ -137,6 +139,13 @@ UpdateGeometryType Drawable2D::GetUpdateGeometryType()
         return UPDATE_MAIN_THREAD;
     else
         return UPDATE_NONE;
+}
+
+void Drawable2D::SetUnitPerPixel(float unitPerPixel)
+{
+    unitPerPixel_ = Max(1.0f, unitPerPixel);
+    MarkVerticesDirty();
+    MarkGeometryDirty();
 }
 
 void Drawable2D::SetSprite(Sprite2D* sprite)

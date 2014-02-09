@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2013 the Urho3D project.
+// Copyright (c) 2008-2014 the Urho3D project.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,6 @@ namespace Urho3D
 extern const char* GEOMETRY_CATEGORY;
 
 StaticSprite2D::StaticSprite2D(Context* context) : Drawable2D(context),
-    unitPerPixel_(1.0f),
     flipX_(false),
     flipY_(false),
     color_(Color::WHITE)
@@ -49,19 +48,10 @@ StaticSprite2D::~StaticSprite2D()
 void StaticSprite2D::RegisterObject(Context* context)
 {
     context->RegisterFactory<StaticSprite2D>(GEOMETRY_CATEGORY);
-
-    ACCESSOR_ATTRIBUTE(StaticSprite2D, VAR_FLOAT, "Unit Per Pixel", GetUnitPerPixel, SetUnitPerPixel, float, 1.0f, AM_DEFAULT);
     ACCESSOR_ATTRIBUTE(StaticSprite2D, VAR_BOOL, "Flip X", GetFlipX, SetFlipX, bool, false, AM_DEFAULT);
     ACCESSOR_ATTRIBUTE(StaticSprite2D, VAR_BOOL, "Flip Y", GetFlipY, SetFlipY, bool, false, AM_DEFAULT);
     REF_ACCESSOR_ATTRIBUTE(StaticSprite2D, VAR_COLOR, "Color", GetColor, SetColor, Color, Color::WHITE, AM_DEFAULT);
     COPY_BASE_ATTRIBUTES(StaticSprite2D, Drawable2D);
-}
-
-void StaticSprite2D::SetUnitPerPixel(float unitPerPixel)
-{
-    unitPerPixel_ = Max(1.0f, unitPerPixel);
-    MarkVerticesDirty();
-    MarkGeometryDirty();
 }
 
 void StaticSprite2D::SetFlip(bool flipX, bool flipY)

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2013 the Urho3D project.
+// Copyright (c) 2008-2014 the Urho3D project.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -52,6 +52,8 @@ public:
     /// Return whether a geometry update is necessary, and if it can happen in a worker thread.
     virtual UpdateGeometryType GetUpdateGeometryType();
 
+    /// Set Unit per pixel.
+    void SetUnitPerPixel(float unitPerPixel);
     /// Set sprite.
     void SetSprite(Sprite2D* sprite);
     /// Set material.
@@ -61,6 +63,8 @@ public:
     /// Set Z value.
     void SetZValue(float zValue);
 
+    /// Return unit per pixel.
+    float GetUnitPerPixel() const { return unitPerPixel_; }
     /// Return sprite.
     Sprite2D* GetSprite() const { return sprite_; }
     /// Return material.
@@ -95,8 +99,9 @@ protected:
     void MarkGeometryDirty() { geometryDirty_ = true; }
     /// Mark material dirty.
     void MarkMaterialDirty() { materialDirty_ = true; }
-    
 
+    /// Unit per pixel.
+    float unitPerPixel_;
     /// Sprite.
     SharedPtr<Sprite2D> sprite_;
     /// Material.

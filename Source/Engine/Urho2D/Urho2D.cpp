@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2008-2013 the Urho3D project.
+// Copyright (c) 2008-2014 the Urho3D project.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 #include "Drawable2D.h"
 #include "StaticSprite2D.h"
 #include "PhysicsWorld2D.h"
+#include "ParticleEmitter2D.h"
 
 #include "DebugNew.h"
 
@@ -41,6 +42,7 @@ void RegisterUrho2DLibrary(Context* context)
     Drawable2D::RegisterObject(context);
     StaticSprite2D::RegisterObject(context);
     PhysicsWorld2D::RegisterObject(context);
+    ParticleEmitter2D::RegisterObject(context);
 }
 
 }
