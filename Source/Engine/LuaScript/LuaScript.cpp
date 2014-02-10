@@ -58,6 +58,7 @@ extern int tolua_PhysicsLuaAPI_open(lua_State*);
 extern int tolua_ResourceLuaAPI_open(lua_State*);
 extern int tolua_SceneLuaAPI_open(lua_State*);
 extern int tolua_UILuaAPI_open(lua_State*);
+extern int tolua_Urho2DLuaAPI_open(lua_State*);
 extern int tolua_LuaScriptLuaAPI_open(lua_State*);
 
 namespace Urho3D
@@ -99,6 +100,7 @@ LuaScript::LuaScript(Context* context) :
     tolua_NetworkLuaAPI_open(luaState_);
     tolua_PhysicsLuaAPI_open(luaState_);
     tolua_UILuaAPI_open(luaState_);
+	tolua_Urho2DLuaAPI_open(luaState_);
     tolua_LuaScriptLuaAPI_open(luaState_);
 
     // Subscribe to console commands

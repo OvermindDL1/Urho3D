@@ -1,0 +1,106 @@
+$#include "ParticleEmitter2D.h"
+
+enum EmitterType2D
+{
+    EMITTER_TYPE_GRAVITY = 0,
+    EMITTER_TYPE_RADIAL
+};
+
+class ParticleEmitter2D : public Drawable2D
+{    
+public:
+    bool Load(const String fileName);
+    bool Load(XMLFile* file);
+
+    void SetDuration(float duration);
+    void SetEmitterType(EmitterType2D emitterType);
+    void SetSourcePositionVariance(const Vector2& sourcePositionVariance);
+    void SetMaxParticles(int maxParticles);
+    void SetParticleLifeSpan(float particleLifeSpan);
+    void SetParticleLifeSpanVariance(float particleLifeSpanVariance);
+    void SetStartParticleSize(float startParticleSize);
+    void SetStartParticleSizeVariance(float startParticleSizeVariance);
+    void SetEndParticleSize(float endParticleSize);
+    void SetEndParticleSizeVariance(float endParticleSizeVariance);
+    void SetEmitAngle(float emitAngle);
+    void SetEmitAngleVariance(float emitAngleVariance);
+    void SetSpeed(float speed);
+    void SetSpeedVariance(float speedVariance);
+    void SetGravity(const Vector2& gravity);
+    void SetRadialAcceleration(float radialAcceleration);
+    void SetRadialAccelerationVariance(float radialAccelerationVariance);
+    void SetTangentialAcceleration(float tangentialAcceleration);
+    void SetTangentialAccelerationVariance(float tangentialAccelerationVariance);
+    void SetMaxRadius(float maxRadius);
+    void SetMaxRadiusVariance(float maxRadiusVariance);
+    void SetMinRadius(float minRadius);
+    void SetRotatePerSecond(float rotatePerSecond);
+    void SetRotatePerSecondVariance(float rotatePerSecondVariance);
+    void SetStartColor(const Color& startColor);
+    void SetStartColorVariance(const Color& startColorVariance);
+    void SetEndColor(const Color& endColor);
+    void SetEndColorVariance(const Color& endColorVariance);
+    void SetBlendFunction(int blendFuncSource, int blendFuncDestination);
+
+    float GetDuration() const;
+    EmitterType2D GetEmitterType() const;
+    const Vector2& GetSourcePositionVariance() const;
+    int GetMaxParticles() const;
+    float GetParticleLifeSpan() const;
+    float GetParticleLifeSpanVariance() const;
+    float GetStartParticleSize() const;
+    float GetStartParticleSizeVariance() const;
+    float GetEndParticleSize() const;
+    float GetEndParticleSizeVariance() const;
+    float GetEmitAngle() const;
+    float GetEmitAngleVariance() const;
+    float GetSpeed() const;
+    float GetSpeedVariance() const;
+    const Vector2& GetGravity() const;
+    float GetRadialAcceleration() const;
+    float GetRadialAccelerationVariance() const;
+    float GetTangentialAcceleration() const;
+    float GetTangentialAccelerationVariance() const;
+    float GetMaxRadius() const;
+    float GetMaxRadiusVariance() const;
+    float GetMinRadius() const;
+    float GetRotatePerSecond() const;
+    float GetRotatePerSecondVariance() const;
+    const Color& GetStartColor() const;
+    const Color& GetStartColorVariance() const;
+    const Color& GetEndColor() const;
+    const Color& GetEndColorVariance() const;
+    int GetBlendFuncSource() const;
+    int GetBlendFuncDestination() const;
+
+    tolua_property__get_set float duration;
+    tolua_property__get_set EmitterType2D emitterType;
+    tolua_property__get_set Vector2 sourcePositionVariance;
+    tolua_property__get_set int maxParticles;
+    tolua_property__get_set float particleLifeSpan;
+    tolua_property__get_set float particleLifeSpanVariance;
+    tolua_property__get_set float startParticleSize;
+    tolua_property__get_set float startParticleSizeVariance;
+    tolua_property__get_set float endParticleSize;
+    tolua_property__get_set float endParticleSizeVariance;
+    tolua_property__get_set float emitAngle;
+    tolua_property__get_set float emitAngleVariance;
+    tolua_property__get_set float speed;
+    tolua_property__get_set float speedVariance;
+    tolua_property__get_set Vector2 gravity;
+    tolua_property__get_set float radialAcceleration;
+    tolua_property__get_set float radialAccelerationVariance;
+    tolua_property__get_set float tangentialAcceleration;
+    tolua_property__get_set float tangentialAccelerationVariance;
+    tolua_property__get_set float maxRadius;
+    tolua_property__get_set float maxRadiusVariance;
+    tolua_property__get_set float minRadius;
+    tolua_property__get_set float rotatePerSecond;
+    tolua_property__get_set float rotatePerSecondVariance;
+    tolua_property__get_set Color startColor;
+    tolua_property__get_set Color startColorVariance;
+    tolua_property__get_set Color endColor;
+    tolua_property__get_set Color endColorVariance;
+    tolua_readonly tolua_property__get_set int blendFuncSource;
+    tolua_readonly tolua_property__get_set int blendFuncDestination;
+};
