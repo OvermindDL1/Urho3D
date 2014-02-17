@@ -24,9 +24,9 @@
 if (CMAKE_GENERATOR STREQUAL Xcode)
     set (XCODE TRUE)
 endif ()
-if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-    set (CMAKE_BUILD_TYPE Release)
-endif ()
+#%if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+#%    set (CMAKE_BUILD_TYPE Release)
+#%endif ()
 if (CMAKE_HOST_WIN32)
     execute_process (COMMAND uname -o COMMAND tr -d '\n' RESULT_VARIABLE UNAME_EXIT_CODE OUTPUT_VARIABLE UNAME_OPERATING_SYSTEM ERROR_QUIET)
     if (UNAME_EXIT_CODE EQUAL 0 AND UNAME_OPERATING_SYSTEM STREQUAL Msys)
@@ -34,126 +34,126 @@ if (CMAKE_HOST_WIN32)
     endif ()
 endif ()
 
-# Enable testing
-if (ENABLE_TESTING)
-    enable_testing ()
-    add_definitions (-DENABLE_TESTING)
-    set (TEST_TIME_OUT 5)    # in seconds
-endif ()
-
+#%# Enable testing
+#%if (ENABLE_TESTING)
+#%    enable_testing ()
+#%    add_definitions (-DENABLE_TESTING)
+#%    set (TEST_TIME_OUT 5)    # in seconds
+#%endif ()
+#%
 # Enable SSE instruction set. Requires Pentium III or Athlon XP processor at minimum.
-if (NOT DEFINED ENABLE_SSE)
-    set (ENABLE_SSE 1)
-endif ()
-if (ENABLE_SSE)
-    add_definitions (-DENABLE_SSE)
-endif ()
-
-# Enable structured exception handling and minidumps on MSVC only.
-if (MSVC)
-    if (NOT DEFINED ENABLE_MINIDUMPS)
-        set (ENABLE_MINIDUMPS 1)
-    endif ()
-    if (ENABLE_MINIDUMPS)
-        add_definitions (-DENABLE_MINIDUMPS)
-    endif ()
-endif ()
-
-# By default use the MSVC dynamic runtime. To eliminate the need to distribute the runtime installer,
-# this can be switched off if not using Urho3D as a shared library.
-if (MSVC)
-    if (USE_STATIC_RUNTIME)
-        set (RELEASE_RUNTIME /MT)
-        set (DEBUG_RUNTIME /MTd)
-    else ()
-        set (RELEASE_RUNTIME "")
-        set (DEBUG_RUNTIME "")
-    endif ()
-endif ()
-
-# Enable file watcher support for automatic resource reloads.
-add_definitions (-DENABLE_FILEWATCHER)
-
-# Enable profiling. If disabled, autoprofileblocks become no-ops and the Profiler subsystem is not instantiated.
-add_definitions (-DENABLE_PROFILING)
-
-# Enable logging. If disabled, LOGXXXX macros become no-ops and the Log subsystem is not instantiated.
-add_definitions (-DENABLE_LOGGING)
-
-# If not on MSVC, enable use of OpenGL instead of Direct3D9 (either not compiling on Windows or
-# with a compiler that may not have an up-to-date DirectX SDK). This can also be unconditionally
-# enabled, but Windows graphics card drivers are usually better optimized for Direct3D. Direct3D can
-# be manually enabled for MinGW with -DUSE_OPENGL=0, but is likely to fail due to missing headers
-# and libraries, unless the MinGW-w64 distribution is used.
-if (NOT MSVC)
-    if (NOT WIN32 OR NOT DEFINED USE_OPENGL)
-        set (USE_OPENGL 1)
-    endif ()
-endif ()
-if (USE_OPENGL)
-    add_definitions (-DUSE_OPENGL)
-endif ()
+#%if (NOT DEFINED ENABLE_SSE)
+#%    set (ENABLE_SSE 1)
+#%endif ()
+#%if (ENABLE_SSE)
+#%    add_definitions (-DENABLE_SSE)
+#%endif ()
+#%
+#%# Enable structured exception handling and minidumps on MSVC only.
+#%if (MSVC)
+#%    if (NOT DEFINED ENABLE_MINIDUMPS)
+#%        set (ENABLE_MINIDUMPS 1)
+#%    endif ()
+#%    if (ENABLE_MINIDUMPS)
+#%        add_definitions (-DENABLE_MINIDUMPS)
+#%    endif ()
+#%endif ()
+#%
+#%# By default use the MSVC dynamic runtime. To eliminate the need to distribute the runtime installer,
+#%# this can be switched off if not using Urho3D as a shared library.
+#%if (MSVC)
+#%    if (USE_STATIC_RUNTIME)
+#%        set (RELEASE_RUNTIME /MT)
+#%        set (DEBUG_RUNTIME /MTd)
+#%    else ()
+#%        set (RELEASE_RUNTIME "")
+#%        set (DEBUG_RUNTIME "")
+#%    endif ()
+#%endif ()
+#%
+#%# Enable file watcher support for automatic resource reloads.
+#%add_definitions (-DENABLE_FILEWATCHER)
+#%
+#%# Enable profiling. If disabled, autoprofileblocks become no-ops and the Profiler subsystem is not instantiated.
+#%add_definitions (-DENABLE_PROFILING)
+#%
+#%# Enable logging. If disabled, LOGXXXX macros become no-ops and the Log subsystem is not instantiated.
+#%add_definitions (-DENABLE_LOGGING)
+#%
+#%# If not on MSVC, enable use of OpenGL instead of Direct3D9 (either not compiling on Windows or
+#%# with a compiler that may not have an up-to-date DirectX SDK). This can also be unconditionally
+#%# enabled, but Windows graphics card drivers are usually better optimized for Direct3D. Direct3D can
+#%# be manually enabled for MinGW with -DUSE_OPENGL=0, but is likely to fail due to missing headers
+#%# and libraries, unless the MinGW-w64 distribution is used.
+#%if (NOT MSVC)
+#%    if (NOT WIN32 OR NOT DEFINED USE_OPENGL)
+#%        set (USE_OPENGL 1)
+#%    endif ()
+#%endif ()
+#%if (USE_OPENGL)
+#%    add_definitions (-DUSE_OPENGL)
+#%endif ()
 
 # If not on Windows, enable Unix mode for kNet library.
 if (NOT WIN32)
     add_definitions (-DUNIX)
 endif ()
 
-# Add definitions for GLEW
-if (NOT IOS AND NOT ANDROID AND NOT RASPI AND USE_OPENGL)
-    add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
-endif ()
-
-# Enable AngelScript by default
-if (NOT DEFINED ENABLE_ANGELSCRIPT)
-    set (ENABLE_ANGELSCRIPT 1)
-endif ()
-
-# Add definition for AngelScript
-if (ENABLE_ANGELSCRIPT)
-    add_definitions (-DENABLE_ANGELSCRIPT)
-endif ()
-
-# Add definition for Lua and LuaJIT
-if (ENABLE_LUAJIT)
-    add_definitions (-DENABLE_LUAJIT)
-    set (JIT JIT)
-    # Implied ENABLE_LUA
-    set (ENABLE_LUA 1)
-    # Adjust LuaJIT default search path as necessary (adapted from LuaJIT's original Makefile)
-    if (NOT CMAKE_INSTALL_PREFIX STREQUAL /usr/local)
-        add_definitions (-DLUA_XROOT="${CMAKE_INSTALL_PREFIX}/")
-    endif ()
-endif ()
-if (ENABLE_LUA)
-    add_definitions (-DENABLE_LUA)
-endif ()
-
-# Default library type is STATIC
-if (URHO3D_LIB_TYPE)
-    string (TOUPPER ${URHO3D_LIB_TYPE} URHO3D_LIB_TYPE)
-endif ()
-if (NOT URHO3D_LIB_TYPE STREQUAL SHARED)
-    set (URHO3D_LIB_TYPE STATIC)
-    add_definitions (-DURHO3D_STATIC_DEFINE)
-endif ()
-
-# Find DirectX SDK include & library directories for Visual Studio. It is also possible to compile
-# without if a recent Windows SDK is installed. The SDK is not searched for with MinGW as it is
-# incompatible; rather, it is assumed that MinGW itself comes with the necessary headers & libraries.
-if (MSVC)
-    find_package (Direct3D)
-    if (DIRECT3D_FOUND)
-        include_directories (${DIRECT3D_INCLUDE_DIRS})
-    endif ()
-endif ()
-
-# For Raspbery Pi, find Broadcom VideoCore IV firmware
-if (RASPI)
-    find_package (BCM_VC REQUIRED)
-    include_directories (${BCM_VC_INCLUDE_DIRS})
-endif ()
-
+#%# Add definitions for GLEW
+#%if (NOT IOS AND NOT ANDROID AND NOT RASPI AND USE_OPENGL)
+#%    add_definitions (-DGLEW_STATIC -DGLEW_NO_GLU)
+#%endif ()
+#%
+#%# Enable AngelScript by default
+#%if (NOT DEFINED ENABLE_ANGELSCRIPT)
+#%    set (ENABLE_ANGELSCRIPT 1)
+#%endif ()
+#%
+#%# Add definition for AngelScript
+#%if (ENABLE_ANGELSCRIPT)
+#%    add_definitions (-DENABLE_ANGELSCRIPT)
+#%endif ()
+#%
+#%# Add definition for Lua and LuaJIT
+#%if (ENABLE_LUAJIT)
+#%    add_definitions (-DENABLE_LUAJIT)
+#%    set (JIT JIT)
+#%    # Implied ENABLE_LUA
+#%    set (ENABLE_LUA 1)
+#%    # Adjust LuaJIT default search path as necessary (adapted from LuaJIT's original Makefile)
+#%    if (NOT CMAKE_INSTALL_PREFIX STREQUAL /usr/local)
+#%        add_definitions (-DLUA_XROOT="${CMAKE_INSTALL_PREFIX}/")
+#%    endif ()
+#%endif ()
+#%if (ENABLE_LUA)
+#%    add_definitions (-DENABLE_LUA)
+#%endif ()
+#%
+#%# Default library type is STATIC
+#%if (URHO3D_LIB_TYPE)
+#%    string (TOUPPER ${URHO3D_LIB_TYPE} URHO3D_LIB_TYPE)
+#%endif ()
+#%if (NOT URHO3D_LIB_TYPE STREQUAL SHARED)
+#%    set (URHO3D_LIB_TYPE STATIC)
+#%    add_definitions (-DURHO3D_STATIC_DEFINE)
+#%endif ()
+#%
+#%# Find DirectX SDK include & library directories for Visual Studio. It is also possible to compile
+#%# without if a recent Windows SDK is installed. The SDK is not searched for with MinGW as it is
+#%# incompatible; rather, it is assumed that MinGW itself comes with the necessary headers & libraries.
+#%if (MSVC)
+#%    find_package (Direct3D)
+#%    if (DIRECT3D_FOUND)
+#%        include_directories (${DIRECT3D_INCLUDE_DIRS})
+#%    endif ()
+#%endif ()
+#%
+#%# For Raspbery Pi, find Broadcom VideoCore IV firmware
+#%if (RASPI)
+#%    find_package (BCM_VC REQUIRED)
+#%    include_directories (${BCM_VC_INCLUDE_DIRS})
+#%endif ()
+#%
 # Platform and compiler specific options
 if (IOS)
     # IOS-specific setup
@@ -257,8 +257,9 @@ endif ()
 # Include CMake builtin module for building shared library support
 include (GenerateExportHeader)
 
-# Determine the project root directory
-get_filename_component (PROJECT_ROOT_DIR ${PROJECT_SOURCE_DIR} PATH)
+##%# Determine the project root directory
+##%get_filename_component (PROJECT_ROOT_DIR ${PROJECT_SOURCE_DIR} PATH)
+set (PROJECT_ROOT_DIR ${PROJECT_SOURCE_DIR})
 
 # Macro for setting common output directories
 macro (set_output_directories OUTPUT_PATH)

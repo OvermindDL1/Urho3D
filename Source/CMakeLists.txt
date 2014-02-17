@@ -20,29 +20,6 @@
 # THE SOFTWARE.
 #
 
-# Set project name
-project (Urho3D)
-
-# Set minimum version
-cmake_minimum_required (VERSION 2.8.6)
-
-if (COMMAND cmake_policy)
-    cmake_policy (SET CMP0003 NEW)
-endif ()
-
-# Set CMake modules search path
-set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/Modules)
-
-# Include Urho3D cmake module
-include (Urho3D-CMake-magic)
-
-# Check existence of stdint.h for LibCpuId
-include (CheckIncludeFiles)
-CHECK_INCLUDE_FILES (stdint.h HAVE_STDINT_H)
-if (HAVE_STDINT_H)
-    add_definitions (-DHAVE_STDINT_H)
-endif ()
-
 # Setup SDK install destinations
 if (WIN32)
     # CMake already automatically prepends "Urho3D" to CMAKE_INSTALL_PREFIX on Windows platform
@@ -102,7 +79,9 @@ endif ()
 add_subdirectory (Engine)
 
 # Urho3D tools
-add_subdirectory (Tools)
+if (ENABLE_TOOLS)
+    add_subdirectory (Tools)
+endif (ENABLE_TOOLS)
 
 # Urho3D samples
 # Samples are built on iOS platform too when enabled
