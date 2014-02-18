@@ -51,5 +51,5 @@ if "%use_mklink%" == "1" (
 echo on
 :: \todo suppress policy warning (for 2.8.12 early adopters), remove this option when CMake minimum version is 2.8.12
 set "OPT=-Wno-dev"
-cmake -E chdir %build% cmake %OPT% -G "Unix Makefiles" -DANDROID=1 -DCMAKE_TOOLCHAIN_FILE=%source%\CMake\Toolchains\android.toolchain.cmake -DLIBRARY_OUTPUT_PATH_ROOT=.  %* %source%
+cmake -E chdir %build% cmake %OPT% -G "Unix Makefiles" -DANDROID=1 -DCMAKE_TOOLCHAIN_FILE=%source%\CMake\Toolchains\android.toolchain.cmake -DLIBRARY_OUTPUT_PATH_ROOT=.  %* %source%\..
 @popd

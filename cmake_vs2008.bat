@@ -38,5 +38,5 @@ if not "%1" == "" (
 echo on
 :: \todo suppress policy warning (for 2.8.12 early adopters), remove this option when CMake minimum version is 2.8.12
 set "OPT=-Wno-dev"
-cmake -E chdir Build cmake %OPT% -G "Visual Studio %version%%arch%" %* ..\Source
+cmake -E chdir Build cmake %OPT% -G "Visual Studio %version%%arch%" %* ..\Source\..
 @popd
